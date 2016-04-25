@@ -134,8 +134,8 @@ class fft : public CBase_fft{
 	 //printf("N: %d, currN: %d, nelem: %d\n", N, currN, nelem);
 	 for(int i=0; i<nblocks; i++){
 	    for(int j=0; j<currN/2; j++){
-	       int p = i*(nelem/nblocks) + j;
-	       int q = i*(nelem/nblocks) + j + currN/2;
+	       int p = i*(currN) + j;
+	       int q = p + currN/2;
 	       //printf("Op %d <--> %d , i: %d, j: %d, currN: %d\n", p, q, i, j, currN);	
 	       //printf("(%Lf,%Lf) (%Lf, %Lf)\n", arr[p].x, arr[p].y, arr[q].x, arr[q].y);
 	       complex temp = arr[p];
@@ -148,7 +148,7 @@ class fft : public CBase_fft{
 	 //print();
 	 ++step;
       }
-      //print();
+      print();
       mainproxy.finish();
    }
 };

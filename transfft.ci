@@ -1,0 +1,43 @@
+mainmodule transfft {
+
+	readonly CProxy_transfft fftarr;
+	readonly CProxy_Main mainproxy;  
+	readonly int nchares; 
+	readonly int N;
+
+	mainchare Main {
+		entry Main(CkArgMsg *m);
+		entry void finish();
+	};
+
+	array [1D] transfft{
+		entry transfft();
+		entry void init();
+		entry void _recvfirst(int size, complex data[size], int from);
+		entry void _recvsecond(int size, complex data[size], int second);
+		
+		entry void recvfirst(int size, complex data[size], int from);
+		entry void recvsecond(int size, complex data[size], int from);	
+
+		entry void firstphase();
+		entry void secondphase();
+	
+		entry void run(){
+			serial{ init(); }
+			forall [chrnum] (0:nchares-1, 1)      
+				when _recvfirst(int size, complex data[size], int from)
+					serial{ recvfirst(size, data, from); }
+
+			serial{ firstphase(); }
+
+			forall [chrnum] (0:nchares-1, 1)      
+				when _recvsecond(int size, complex data[size], int from)
+					serial{ recvsecond(size, data, from); }
+
+			serial{ 
+				secondphase();
+				mainproxy.finish(); 
+			}
+		} 	 
+	};
+}
