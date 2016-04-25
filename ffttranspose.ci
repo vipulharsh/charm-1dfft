@@ -1,0 +1,31 @@
+mainmodule fft {
+
+	readonly CProxy_fft fftarr;
+	readonly CProxy_Main mainproxy;  
+	readonly int nchares;
+	readonly int N;
+	readonly int ITERATION;
+	
+	mainchare Main {
+		entry Main(CkArgMsg *m);
+		entry void finish();
+	};
+
+	array [1D] fft{
+		entry fft();
+		entry void start();
+		entry void recv(int currstep, int size, complex data[size]);
+		entry void recvvalues(int size, complex data[size]);
+		entry void run(){
+			serial{
+				start();
+			}
+			for(it=0; it<ITERATION; it++){      
+				when recv[step](int currstep, int size, complex data[size])
+					serial{
+						recvvalues(size, data); 
+					}
+			}
+		} 	 
+	};
+}
