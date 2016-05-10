@@ -54,6 +54,7 @@ class fft : public CBase_fft{
    int me;
    int step;
    int it;
+   double start_time, end_time;
 
    public:
    
@@ -84,6 +85,7 @@ class fft : public CBase_fft{
       me = this->thisIndex;
       step = 0;
       setdata();
+      start_time = CmiWallTimer();
       int dest = (me+nchares/2)%nchares;
       //printf("Sending to %d - %d\n", dest, me);
       //print();
@@ -109,7 +111,7 @@ class fft : public CBase_fft{
 	    arr[i] = data[i] - arr[i];
 	    int ind = ((me * (N/nchares)) + i)%(currN/2);
 	    //printf("ind: %d, me: %d, i: %d, currN: %d \n", ind, me, i, currN);
-	    arr[i] *= ei2PI(-(long double)ind/currN); 
+	    arr[i] *= ei2PI(-(ld)ind/currN); 
 	 }
       }
       ++step;
@@ -141,14 +143,17 @@ class fft : public CBase_fft{
 	       complex temp = arr[p];
 	       arr[p] += arr[q];
 	       arr[q] = temp-arr[q];
-	       arr[q] *= ei2PI(-(long double)j/currN);
+	       arr[q] *= ei2PI(-(ld)j/currN);
 	       //printf("(%Lf,%Lf) (%Lf, %Lf)\n", arr[p].x, arr[p].y, arr[q].x, arr[q].y);
 	    }	
 	 }
 	 //print();
 	 ++step;
       }
-      print();
+      end_time = CmiWallTimer();
+      if(CkMyPe()==0)
+      	printf("FFT Size: %d, nchares: %d,  Walltime: %lf sec\n", N, nchares, end_time-start_time);
+      //print();
       mainproxy.finish();
    }
 };

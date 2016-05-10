@@ -87,6 +87,7 @@ class transfft : public CBase_transfft{
 		arr= new complex[nelem];
 		me = this->thisIndex;
 		setdata();
+		start_time = CmiWallTimer();
 		//Handling All-to-All comm. : any other way?
 		complex *scratch = new complex[numrows * numrows];
 		for(int i=0; i<nchares; i++){
@@ -128,7 +129,7 @@ class transfft : public CBase_transfft{
 						int glblrow = p - (col*rootN);
 						int num = ((glblrow*rootN)+glblcol)%divN;
 						//printf("p:%d, q:%d, j:%d, glblrow:%d, glblcol: %d, num:%d, divN: %d, me: %d\n", p, q, j, glblrow, glblcol, num, divN, me);
-						arr[q] *= ei2PI(-(long double)num/divN);
+						arr[q] *= ei2PI(-(ld)num/divN);
 					}
 				}
 			}
@@ -165,11 +166,14 @@ class transfft : public CBase_transfft{
 					complex temp = arr[p];
 					arr[p] += arr[q];
 					arr[q] = temp-arr[q];
-					arr[q] *= ei2PI(-(long double)j/currN);
+					arr[q] *= ei2PI(-(ld)j/currN);
 				}	
 			}
 			++step;
 		}
+		end_time = CmiWallTimer();
+      		if(CkMyPe()==0)
+      			printf("transFFT Size: %d, nchares: %d,  Walltime: %lf sec\n", N, nchares, end_time-start_time);
 		//print();
 	}
 

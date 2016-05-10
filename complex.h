@@ -3,16 +3,16 @@
 
 #include <math.h>
 
+typedef float ld;
 
-
-const long double PI=3.14159265358979323846;  /* pi */
+const ld PI=3.14159265358979323846;  /* pi */
 
 
 struct complex{
-	long double x, y;
+	ld x, y;
 	complex(){};
-	complex(long double _x, long double _y):x(_x), y(_y) {};
-	complex(long double t){ //e^it
+	complex(ld _x, ld _y):x(_x), y(_y) {};
+	complex(ld t){ //e^it
 		x = cos(t);
 		y = sin(t);
 	}
@@ -36,7 +36,7 @@ struct complex{
 		return complex(x*a.x - y*a.y, x*a.y + y*a.x);
 	}
 	complex& operator*=(const complex& a){
-		long double tempx = x;
+		ld tempx = x;
 		x = x*a.x-y*a.y;
 		y = tempx*a.y + y*a.x;
 		return *this;
@@ -47,7 +47,7 @@ struct complex{
 };
 
 
-complex ei2PI(long double k){
+complex ei2PI(ld k){
 	return complex(2*PI*k);
 }
 
