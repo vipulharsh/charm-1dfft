@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include <fftw3-mpi.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -8,14 +9,23 @@
 
 int main(int argc, char **argv){
 
-      const ptrdiff_t N0 = 4194304 ; //2^22
+      ptrdiff_t N0 = 1<<10;
       fftw_plan plan;
-      fftw_complex *data,*dataOut;
+      fftw_complex *data,*dataout;
       ptrdiff_t alloc_local, local_ni, local_i_start, i, j,local_no, local_o_start;
       
       int index,size;
       MPI_Init(&argc, &argv);
       fftw_mpi_init();
+      
+      if(argc < 2){
+      	printf("Usage: mpirun -np<#processes> ./parfftw <fftsize>\n");
+	MPI_Finalize();
+	return;
+      }
+      else{
+        N0 = atoi(argv[1]);
+      }
       
       MPI_Comm_rank(MPI_COMM_WORLD,&index);
       MPI_Comm_size(MPI_COMM_WORLD,&size);
@@ -24,7 +34,7 @@ int main(int argc, char **argv){
       alloc_local = fftw_mpi_local_size_1d(N0, MPI_COMM_WORLD,FFTW_FORWARD, FFTW_ESTIMATE,
                                       &local_ni, &local_i_start,&local_no, &local_o_start);
       data = fftw_alloc_complex(alloc_local);
-      dataOut = fftw_alloc_complex(alloc_local);
+      dataout = fftw_alloc_complex(alloc_local);
       
       /* initialize data to some function my_function(x,y) */
       for (i = 0; i < local_ni; ++i) {
@@ -34,7 +44,7 @@ int main(int argc, char **argv){
 
 
       /* create plan  */
-      plan = fftw_mpi_plan_dft_1d(N0, data, data2, MPI_COMM_WORLD,
+      plan = fftw_mpi_plan_dft_1d(N0, data, dataout, MPI_COMM_WORLD,
                              FFTW_FORWARD, FFTW_ESTIMATE);
       
       double startwtime, endwtime;
